@@ -1,20 +1,28 @@
+using Azure.Identity;
+using Microsoft.EntityFrameworkCore;
+using OtisAPI.DataAccess;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["Keyvault"]), new DefaultAzureCredential());
+
+builder.Services.AddDbContext<SqlContext>(x => x.UseSqlServer(builder.Configuration["OtisDbConnectionString"]));
+builder.Services.AddDbContext<NoSqlContext>(x =>
+    x.UseCosmos(
+        builder.Configuration["OtisCosmosDbUri"],
+        builder.Configuration["OtisCosmosDbAccessKey"],
+        "LpSmartDevices"));
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
