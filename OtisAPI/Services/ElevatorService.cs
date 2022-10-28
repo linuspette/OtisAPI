@@ -13,10 +13,13 @@ public interface IElevatorService
     {
         Success,
         Failed,
-        Error
+        Error,
+        Conflict
     }
 
     public Task<List<ElevatorViewModel>> GetElevatorsAsync(int take = 0);
+    public Task<ElevatorViewModel> GetElevatorAsync(Guid id);
+    public Task<IElevatorService.StatusCodes> AddElevatorAsync(ElevatorInputModel input);
 }
 public class ElevatorService : IElevatorService
 {
@@ -31,40 +34,57 @@ public class ElevatorService : IElevatorService
 
     public async Task<List<ElevatorViewModel>> GetElevatorsAsync(int take = 0)
     {
-        return _mapper.Map<List<ElevatorViewModel>>(await GetElevators(take)) ?? null!;
+        return _mapper.Map<List<ElevatorViewModel>>(await GetElevators(take));
     }
 
-    public async Task<ElevatorViewModel> GetElevator(Guid id)
-    {
-        return _mapper.Map<ElevatorViewModel>(await _context.Elevators
-                .Include(x => x.Errands).ThenInclude(x => x.ErrandUpdates)
-                .Include(x => x.Errands).ThenInclude(x => x.AssignedTechnicians)
-                .FirstOrDefaultAsync(x => x.Id == id)) ?? null!;
-    }
-
-    public async Task<IElevatorService.StatusCodes> AddElevator(ElevatorInputModel input)
+    public async Task<ElevatorViewModel> GetElevatorAsync(Guid id)
     {
         try
         {
-            _context.Entry(_mapper.Map<ElevatorEntity>(input)).State = EntityState.Added;
+            return _mapper.Map<ElevatorViewModel>(await _context.Elevators
+                .Include(x => x.Errands).ThenInclude(x => x.ErrandUpdates)
+                .Include(x => x.Errands).ThenInclude(x => x.AssignedTechnicians)
+                .FirstOrDefaultAsync(x => x.Id == id));
+        }
+        catch { }
+
+        return null!;
+    }
+
+    public async Task<IElevatorService.StatusCodes> AddElevatorAsync(ElevatorInputModel input)
+    {
+        try
+        {
+            var elevator = _mapper.Map<ElevatorEntity>(input);
+            _context.Entry(elevator).State = EntityState.Added;
 
             await _context.SaveChangesAsync();
             return IElevatorService.StatusCodes.Success;
         }
-        catch { }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         return IElevatorService.StatusCodes.Failed;
     }
     private async Task<List<ElevatorEntity>> GetElevators(int take)
     {
-        if (take <= 0)
+        try
+        {
+            if (take <= 0)
+                return await _context.Elevators
+                    .Include(x => x.Errands).ThenInclude(x => x.ErrandUpdates)
+                    .Include(x => x.Errands).ThenInclude(x => x.AssignedTechnicians)
+                    .ToListAsync();
             return await _context.Elevators
                 .Include(x => x.Errands).ThenInclude(x => x.ErrandUpdates)
                 .Include(x => x.Errands).ThenInclude(x => x.AssignedTechnicians)
+                .Take(take)
                 .ToListAsync();
-        return await _context.Elevators
-            .Include(x => x.Errands).ThenInclude(x => x.ErrandUpdates)
-            .Include(x => x.Errands).ThenInclude(x => x.AssignedTechnicians)
-            .Take(take)
-            .ToListAsync();
+        }
+        catch { }
+
+        return null!;
     }
 }

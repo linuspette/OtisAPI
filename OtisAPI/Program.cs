@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using OtisAPI.DataAccess;
+using OtisAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +22,17 @@ builder.Services.AddDbContext<NoSqlContext>(x =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IElevatorService, ElevatorService>();
 
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
-
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
