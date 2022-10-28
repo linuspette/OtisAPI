@@ -44,8 +44,15 @@ public class ElevatorService : IElevatorService
 
     public async Task<IElevatorService.StatusCodes> AddElevator(ElevatorInputModel input)
     {
+        try
+        {
+            _context.Entry(_mapper.Map<ElevatorEntity>(input)).State = EntityState.Added;
 
-        return IElevatorService.StatusCodes.Error;
+            await _context.SaveChangesAsync();
+            return IElevatorService.StatusCodes.Success;
+        }
+        catch { }
+        return IElevatorService.StatusCodes.Failed;
     }
     private async Task<List<ElevatorEntity>> GetElevators(int take)
     {
