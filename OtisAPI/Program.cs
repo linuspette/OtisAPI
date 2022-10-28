@@ -7,7 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["Keyvault"]), new DefaultAzureCredential());
 
-builder.Services.AddDbContext<SqlContext>(x => x.UseSqlServer(builder.Configuration["OtisDbConnectionString"]));
+builder.Services.AddDbContext<SqlContext>(x =>
+{
+    x.UseSqlServer(builder.Configuration["OtisDbConnectionString"]);
+});
 builder.Services.AddDbContext<NoSqlContext>(x =>
     x.UseCosmos(
         builder.Configuration["OtisCosmosDbUri"],

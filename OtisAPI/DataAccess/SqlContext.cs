@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OtisAPI.Model.DataEntities;
+using OtisAPI.Model.DataEntities.Errands;
 
 namespace OtisAPI.DataAccess;
 
 public class SqlContext : DbContext
 {
-    public SqlContext(DbContextOptions options) : base(options)
+    public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
     }
 
