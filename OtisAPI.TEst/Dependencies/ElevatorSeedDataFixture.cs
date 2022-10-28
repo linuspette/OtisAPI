@@ -20,11 +20,6 @@ public class ElevatorSeedDataFixture : IDisposable
         GenerateMockElevators();
     }
 
-    public void Dispose()
-    {
-        SqlContext.Dispose();
-    }
-
     private void GenerateMockElevators()
     {
         while (SqlContext.Elevators.Count() < 20)
@@ -37,5 +32,10 @@ public class ElevatorSeedDataFixture : IDisposable
             SqlContext.Elevators.Add(elevator);
             SqlContext.SaveChanges();
         }
+    }
+
+    public void Dispose()
+    {
+        SqlContext.Dispose();
     }
 }

@@ -7,18 +7,19 @@ using OtisAPI.Test.Dependencies;
 
 namespace OtisAPI.Test.Services;
 
-public class ElevatorService_Tests
+public class ElevatorService_Tests : IClassFixture<ElevatorSeedDataFixture>
 {
+    private readonly ElevatorSeedDataFixture _dataContext;
     private readonly ElevatorService _sut;
-    private readonly ElevatorSeedDataFixture dataContext;
 
     public ElevatorService_Tests()
     {
-        dataContext = new ElevatorSeedDataFixture();
+        _dataContext = new ElevatorSeedDataFixture();
         var autoMapper = new AutoMapperDependency();
 
-        _sut = new ElevatorService(dataContext.SqlContext, autoMapper.Mapper);
+        _sut = new ElevatorService(_dataContext.SqlContext, autoMapper.Mapper);
     }
+
 
     [Fact]
     public async Task Test_Add_Elevator()
@@ -59,6 +60,6 @@ public class ElevatorService_Tests
     {
         var result = await _sut.GetElevatorsAsync();
 
-        Assert.StrictEqual(result.Count, dataContext.SqlContext.Elevators.Count());
+        Assert.StrictEqual(result.Count, _dataContext.SqlContext.Elevators.Count());
     }
 }
