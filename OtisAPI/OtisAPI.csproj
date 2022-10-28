@@ -25,7 +25,10 @@
     <Folder Include="Model\DataEntities\Elevators\" />
     <Folder Include="Infrastructure\" />
     <Folder Include="Model\DataEntities\Users\" />
+    <Folder Include="Model\InputModels\Elevator\" />
     <Folder Include="Model\ViewModels\Elevator\" />
+    <Folder Include="Model\ViewModels\Errands\" />
+    <Folder Include="Model\ViewModels\Users\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
