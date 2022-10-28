@@ -9,7 +9,7 @@ builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["Keyvault"]
 
 builder.Services.AddDbContext<SqlContext>(x =>
 {
-    x.UseSqlServer(builder.Configuration["OtisDbConnectionString"]);
+    x.UseSqlServer(builder.Configuration["PC"]);
 });
 builder.Services.AddDbContext<NoSqlContext>(x =>
     x.UseCosmos(
