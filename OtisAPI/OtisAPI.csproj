@@ -26,6 +26,7 @@
     <Folder Include="Infrastructure\" />
     <Folder Include="Model\DataEntities\Users\" />
     <Folder Include="Model\InputModels\Elevator\" />
+    <Folder Include="Model\InputModels\Errands\" />
     <Folder Include="Model\ViewModels\Elevator\" />
     <Folder Include="Model\ViewModels\Errands\" />
     <Folder Include="Model\ViewModels\Users\" />

@@ -61,11 +61,7 @@ public class ElevatorService : IElevatorService
             await _context.SaveChangesAsync();
             return IElevatorService.StatusCodes.Success;
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        catch { }
         return IElevatorService.StatusCodes.Failed;
     }
     private async Task<List<ElevatorEntity>> GetElevators(int take)
