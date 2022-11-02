@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using OtisAPI.Infrastructure;
 using OtisAPI.Model.InputModels.Errands;
-using OtisAPI.Model.ViewModels.Elevator;
 using OtisAPI.Services;
 using OtisAPI.Test.Dependencies;
 
@@ -44,14 +43,11 @@ public class ErrandService_Tests
         {
             ErrandNumber = ErrandNumberGenerator.GenerateErrandNumber(),
             Title = "Test",
-            Elevator = _autoMapper.Mapper.Map<ElevatorViewModel>(elevator),
-            ErrandUpdates = new List<ErrandUpdateCreationModel>
+            ElevatorId = elevator.Id,
+            ErrandUpdates = new ErrandUpdateCreationModel
             {
-                new ErrandUpdateCreationModel
-                {
-                    Status = "Not fixed",
-                    Message = "Testing"
-                }
+                Status = "Not fixed",
+                Message = "Testing"
             },
             IsResolved = false
         };
@@ -83,18 +79,15 @@ public class ErrandService_Tests
             .RuleFor(x => x.Title, f => f.Commerce.ProductName())
             .Generate();
 
-        errand.ErrandUpdates.Add(new Faker<ErrandUpdateCreationModel>()
+        errand.ErrandUpdates = new Faker<ErrandUpdateCreationModel>()
             .StrictMode(false)
+            .RuleFor(x => x.Status, f => f.Lorem.Word())
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
-            .Generate());
+            .Generate();
 
         var elevators = _dataContext.SqlContext.Elevators.ToList();
         var elevator = elevators[random.Next(0, elevators.Count)];
-        errand.Elevator = new ElevatorViewModel
-        {
-            Id = elevator.Id,
-            Location = elevator.Location,
-        };
+        errand.ElevatorId = elevator.Id;
 
         return errand;
     }
@@ -106,18 +99,15 @@ public class ErrandService_Tests
             .RuleFor(x => x.Title, f => f.Commerce.ProductName())
             .Generate();
 
-        errand.ErrandUpdates.Add(new Faker<ErrandUpdateCreationModel>()
+        errand.ErrandUpdates = new Faker<ErrandUpdateCreationModel>()
             .StrictMode(false)
+            .RuleFor(x => x.Status, f => f.Lorem.Word())
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
-            .Generate());
+            .Generate();
 
         var elevators = _dataContext.SqlContext.Elevators.ToList();
         var elevator = elevators[random.Next(0, elevators.Count)];
-        errand.Elevator = new ElevatorViewModel
-        {
-            Id = elevator.Id,
-            Location = elevator.Location,
-        };
+        errand.ElevatorId = elevator.Id;
         await _sut.CreateErrandAsync(errand);
 
         return errand.ErrandNumber;
