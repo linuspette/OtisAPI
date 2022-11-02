@@ -24,6 +24,7 @@ public interface IErrandService
     public Task<IErrandService.StatusCodes> CreateErrandAsync(ErrandInputModel input);
     public Task<ErrandViewModel> GetErrandAsync(string errandNummer);
     public Task<List<ErrandViewModel>> GetAllErrandsAsync(int take = 0);
+    public Task<IErrandService.StatusCodes> AddErrandUpdateAsync(ErrandUpdateInputModel input);
 }
 public class ErrandService : IErrandService
 {
@@ -99,34 +100,38 @@ public class ErrandService : IErrandService
         try
         {
             var errand = await _context.Errands
+                .Include(x => x.AssignedTechnicians)
                 .Include(x => x.ErrandUpdates)
-                .FirstOrDefaultAsync(x => x.Id == input.ErrandId);
+                .FirstOrDefaultAsync(x => x.ErrandNumber == input.ErrandNumber);
             if (errand == null)
                 return IErrandService.StatusCodes.ErrandDoesNotExist;
 
-            errand.ErrandUpdates.Add(new ErrandUpdateEntity
+            //Adds new message
+            var errandUpdate = new ErrandUpdateEntity
             {
                 Id = Guid.NewGuid(),
                 Status = input.Status,
                 Message = input.Message,
                 DateOfUpdate = DateTime.UtcNow
-            });
+            };
 
+            errand.ErrandUpdates.Add(errandUpdate);
+            //Adds employee
             if (input.Employees != null)
             {
-                foreach (var employee in input.Employees)
-                {
-                    errand.AssignedTechnicians.Add(_mapper.Map<EmployeeEntity>(employee));
-                }
+                errand.AssignedTechnicians = _mapper.Map<List<EmployeeEntity>>(input.Employees);
             }
 
-            _context.Entry(errand).State = EntityState.Modified;
-
+            _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Added;
+            _context.Errands.Attach(errand).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
             return IErrandService.StatusCodes.Success;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
         return IErrandService.StatusCodes.Failed;
     }
 }

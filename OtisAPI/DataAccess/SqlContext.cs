@@ -12,4 +12,5 @@ public class SqlContext : DbContext
 
     public DbSet<ErrandEntity> Errands { get; set; } = null!;
     public DbSet<ElevatorEntity> Elevators { get; set; } = null!;
+    public DbSet<ErrandUpdateEntity> ErrandUpdates { get; set; }
 }

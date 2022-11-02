@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using OtisAPI.Infrastructure;
 using OtisAPI.Model.InputModels.Errands;
 using OtisAPI.Model.ViewModels.Elevator;
 using OtisAPI.Services;
@@ -9,15 +10,16 @@ namespace OtisAPI.Test.Services;
 public class ErrandService_Tests
 {
     private readonly ErrandService _sut;
-    private readonly ErrandSeedDataFixture dataContext;
+    private readonly ErrandSeedDataFixture _dataContext;
     private readonly Random random = new Random();
+    private readonly AutoMapperDependency _autoMapper;
 
     public ErrandService_Tests()
     {
-        dataContext = new ErrandSeedDataFixture();
-        var autoMapper = new AutoMapperDependency();
+        _dataContext = new ErrandSeedDataFixture();
+        _autoMapper = new AutoMapperDependency();
 
-        _sut = new ErrandService(dataContext.SqlContext, autoMapper.Mapper);
+        _sut = new ErrandService(_dataContext.SqlContext, _autoMapper.Mapper);
     }
 
     [Fact]
@@ -26,7 +28,6 @@ public class ErrandService_Tests
         var result = await _sut.CreateErrandAsync(GenerateMockInputModel());
         Assert.StrictEqual<IErrandService.StatusCodes>(IErrandService.StatusCodes.Success, result);
     }
-
     [Fact]
     public async Task Test_Get_Errand_Async()
     {
@@ -35,6 +36,45 @@ public class ErrandService_Tests
 
         Assert.Equal(errandNumber, result.ErrandNumber);
     }
+    [Fact]
+    public async Task Test_Add_Update_To_Errand()
+    {
+        var elevator = _dataContext.SqlContext.Elevators.First();
+        var errand = new ErrandInputModel
+        {
+            ErrandNumber = ErrandNumberGenerator.GenerateErrandNumber(),
+            Title = "Test",
+            Elevator = _autoMapper.Mapper.Map<ElevatorViewModel>(elevator),
+            ErrandUpdates = new List<ErrandUpdateCreationModel>
+            {
+                new ErrandUpdateCreationModel
+                {
+                    Status = "Not fixed",
+                    Message = "Testing"
+                }
+            },
+            IsResolved = false
+        };
+
+        var errandResult = await _sut.CreateErrandAsync(errand);
+        if (errandResult == IErrandService.StatusCodes.Success)
+        {
+            var errandUpdate = new ErrandUpdateInputModel
+            {
+                ErrandNumber = errand.ErrandNumber,
+                Status = "Fixed",
+                Message = "Ok",
+                IsResolved = true,
+                Employees = null
+            };
+
+            var updateResult = await _sut.AddErrandUpdateAsync(errandUpdate);
+
+            Assert.StrictEqual(IErrandService.StatusCodes.Success, updateResult);
+        }
+    }
+
+    //Helpers
 
     private ErrandInputModel GenerateMockInputModel()
     {
@@ -48,7 +88,7 @@ public class ErrandService_Tests
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
             .Generate());
 
-        var elevators = dataContext.SqlContext.Elevators.ToList();
+        var elevators = _dataContext.SqlContext.Elevators.ToList();
         var elevator = elevators[random.Next(0, elevators.Count)];
         errand.Elevator = new ElevatorViewModel
         {
@@ -71,7 +111,7 @@ public class ErrandService_Tests
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
             .Generate());
 
-        var elevators = dataContext.SqlContext.Elevators.ToList();
+        var elevators = _dataContext.SqlContext.Elevators.ToList();
         var elevator = elevators[random.Next(0, elevators.Count)];
         errand.Elevator = new ElevatorViewModel
         {
