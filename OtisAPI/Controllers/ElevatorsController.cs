@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OtisAPI.Model.InputModels.Elevator;
-using OtisAPI.Model.ViewModels.Elevator;
 using OtisAPI.Services;
 
 namespace OtisAPI.Controllers
@@ -35,11 +34,11 @@ namespace OtisAPI.Controllers
 
         [HttpPost]
         [Route("getelevators")]
-        public async Task<IActionResult> GetElevators(int take = 0)
+        public async Task<IActionResult> GetElevatorsAsync(int take = 0)
         {
             try
             {
-                List<ElevatorViewModel> elevators = await _elevatorService.GetElevatorsAsync(take);
+                var elevators = await _elevatorService.GetElevatorsAsync(take);
                 if (elevators == null)
                     return new NotFoundObjectResult("Didn't find any elevators");
 
@@ -51,8 +50,25 @@ namespace OtisAPI.Controllers
         }
 
         [HttpPost]
+        [Route("getelevatorids")]
+        public async Task<IActionResult> GetElevatorIdsAsync(int take = 0)
+        {
+            try
+            {
+                var elevatorIds = await _elevatorService.GetElevatorIdsAsync(take);
+                if (elevatorIds == null)
+                    return new NotFoundObjectResult("Didn't find any Ids");
+
+                return new OkObjectResult(elevatorIds);
+            }
+            catch { }
+
+            return new BadRequestObjectResult("Error while getting Ids");
+        }
+
+        [HttpPost]
         [Route("add")]
-        public async Task<IActionResult> AddElevator(ElevatorInputModel input)
+        public async Task<IActionResult> AddElevatorAsync(ElevatorInputModel input)
         {
             try
             {
@@ -62,16 +78,16 @@ namespace OtisAPI.Controllers
 
                     if (result == IElevatorService.StatusCodes.Success)
                         return new OkObjectResult("Elevator successfully added");
-
-                    return new BadRequestObjectResult("Elevator could not be created");
+                    else if (result == IElevatorService.StatusCodes.Conflict)
+                        return new ConflictObjectResult("Elevator already exitst");
                 }
+
+                return new BadRequestObjectResult("Elevator could not be created");
             }
             catch (Exception ex)
             {
                 return new BadRequestObjectResult(ex.Message);
             }
-
-            return new BadRequestObjectResult("Critical error. Add method could not execute");
         }
     }
 }

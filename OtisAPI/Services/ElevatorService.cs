@@ -20,6 +20,7 @@ public interface IElevatorService
     public Task<List<ElevatorViewModel>> GetElevatorsAsync(int take = 0);
     public Task<ElevatorViewModel> GetElevatorAsync(Guid id);
     public Task<IElevatorService.StatusCodes> AddElevatorAsync(ElevatorInputModel input);
+    public Task<List<Guid>> GetElevatorIdsAsync(int take = 0);
 }
 public class ElevatorService : IElevatorService
 {
@@ -32,11 +33,25 @@ public class ElevatorService : IElevatorService
         _mapper = mapper;
     }
 
+    public async Task<List<Guid>> GetElevatorIdsAsync(int take = 0)
+    {
+        try
+        {
+            var elevators = new List<ElevatorEntity>();
+            if (take > 0)
+                elevators = await _context.Elevators.Take(take).ToListAsync();
+            else
+                elevators = await _context.Elevators.ToListAsync();
+
+            return elevators.Select(e => e.Id).ToList();
+        }
+        catch { }
+        return null!;
+    }
     public async Task<List<ElevatorViewModel>> GetElevatorsAsync(int take = 0)
     {
         return _mapper.Map<List<ElevatorViewModel>>(await GetElevators(take));
     }
-
     public async Task<ElevatorViewModel> GetElevatorAsync(Guid id)
     {
         try
@@ -54,15 +69,22 @@ public class ElevatorService : IElevatorService
     {
         try
         {
-            var elevator = _mapper.Map<ElevatorEntity>(input);
-            _context.Entry(elevator).State = EntityState.Added;
+            if (await _context.Elevators.FirstOrDefaultAsync(x => x.Id == input.Id) == null)
+            {
+                var elevator = _mapper.Map<ElevatorEntity>(input);
+                _context.Entry(elevator).State = EntityState.Added;
 
-            await _context.SaveChangesAsync();
-            return IElevatorService.StatusCodes.Success;
+                await _context.SaveChangesAsync();
+                return IElevatorService.StatusCodes.Success;
+            }
+            else
+                return IElevatorService.StatusCodes.Conflict;
         }
         catch { }
         return IElevatorService.StatusCodes.Failed;
     }
+
+    //Private methods
     private async Task<List<ElevatorEntity>> GetElevators(int take)
     {
         try

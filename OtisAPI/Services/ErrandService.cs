@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OtisAPI.DataAccess;
 using OtisAPI.Infrastructure;
 using OtisAPI.Model.DataEntities.Errands;
+using OtisAPI.Model.DataEntities.Users;
 using OtisAPI.Model.InputModels.Errands;
 using OtisAPI.Model.ViewModels.Errands;
 
@@ -16,7 +17,8 @@ public interface IErrandService
         Failed,
         Conflict,
         NoElevatorAttached,
-        NeedsFirstUpdate
+        NeedsFirstUpdate,
+        ErrandDoesNotExist,
     }
 
     public Task<IErrandService.StatusCodes> CreateErrandAsync(ErrandInputModel input);
@@ -90,5 +92,41 @@ public class ErrandService : IErrandService
             .Include(x => x.Elevator)
             .Take(take)
             .ToListAsync()) ?? null!;
+    }
+
+    public async Task<IErrandService.StatusCodes> AddErrandUpdateAsync(ErrandUpdateInputModel input)
+    {
+        try
+        {
+            var errand = await _context.Errands
+                .Include(x => x.ErrandUpdates)
+                .FirstOrDefaultAsync(x => x.Id == input.ErrandId);
+            if (errand == null)
+                return IErrandService.StatusCodes.ErrandDoesNotExist;
+
+            errand.ErrandUpdates.Add(new ErrandUpdateEntity
+            {
+                Id = Guid.NewGuid(),
+                Status = input.Status,
+                Message = input.Message,
+                DateOfUpdate = DateTime.UtcNow
+            });
+
+            if (input.Employees != null)
+            {
+                foreach (var employee in input.Employees)
+                {
+                    errand.AssignedTechnicians.Add(_mapper.Map<EmployeeEntity>(employee));
+                }
+            }
+
+            _context.Entry(errand).State = EntityState.Modified;
+
+
+            await _context.SaveChangesAsync();
+            return IErrandService.StatusCodes.Success;
+        }
+        catch { }
+        return IErrandService.StatusCodes.Failed;
     }
 }

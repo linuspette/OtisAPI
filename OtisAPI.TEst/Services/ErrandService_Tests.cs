@@ -43,7 +43,7 @@ public class ErrandService_Tests
             .RuleFor(x => x.Title, f => f.Commerce.ProductName())
             .Generate();
 
-        errand.ErrandUpdates.Add(new Faker<ErrandUpdateInputModel>()
+        errand.ErrandUpdates.Add(new Faker<ErrandUpdateCreationModel>()
             .StrictMode(false)
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
             .Generate());
@@ -66,7 +66,7 @@ public class ErrandService_Tests
             .RuleFor(x => x.Title, f => f.Commerce.ProductName())
             .Generate();
 
-        errand.ErrandUpdates.Add(new Faker<ErrandUpdateInputModel>()
+        errand.ErrandUpdates.Add(new Faker<ErrandUpdateCreationModel>()
             .StrictMode(false)
             .RuleFor(x => x.Message, f => f.Lorem.Sentences(5))
             .Generate());

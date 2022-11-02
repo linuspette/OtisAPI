@@ -22,7 +22,7 @@ public class AutoMapperProfiles : Profile
         CreateMap<ErrandEntity, ErrandViewModel>().ReverseMap();
         CreateMap<ErrandUpdateEntity, ErrandUpdateViewModel>().ReverseMap();
         CreateMap<ErrandInputModel, ErrandEntity>();
-        CreateMap<ErrandUpdateInputModel, ErrandUpdateEntity>();
+        CreateMap<ErrandUpdateCreationModel, ErrandUpdateEntity>();
 
         //User entities
         CreateMap<EmployeeEntity, EmployeeViewModel>().ReverseMap();

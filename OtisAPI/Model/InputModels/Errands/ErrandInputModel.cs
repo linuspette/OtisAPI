@@ -8,6 +8,6 @@ public class ErrandInputModel
     public string ErrandNumber { get; set; } = ErrandNumberGenerator.GenerateErrandNumber();
     public string Title { get; set; } = null!;
     public ElevatorViewModel Elevator { get; set; } = null!;
-    public List<ErrandUpdateInputModel> ErrandUpdates { get; set; } = new List<ErrandUpdateInputModel>();
+    public List<ErrandUpdateCreationModel> ErrandUpdates { get; set; } = new List<ErrandUpdateCreationModel>();
     public bool IsResolved { get; set; } = false;
 }
