@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OtisAPI.DataAccess;
 using OtisAPI.Services;
 
@@ -19,11 +20,13 @@ builder.Services.AddDbContext<NoSqlContext>(x =>
         "LpSmartDevices"));
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IElevatorService, ElevatorService>();
+builder.Services.AddScoped<IErrandService, ErrandService>();
 
 var app = builder.Build();
 

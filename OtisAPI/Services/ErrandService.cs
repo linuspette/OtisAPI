@@ -55,12 +55,30 @@ public class ErrandService : IErrandService
 
         try
         {
-            if (input.Elevator == null)
+            if (input.ElevatorId == Guid.Empty)
                 return IErrandService.StatusCodes.NoElevatorAttached;
-            if (input.ErrandUpdates == null || input.ErrandUpdates.Count == 0)
+            if (input.ErrandUpdates == null)
                 return IErrandService.StatusCodes.NeedsFirstUpdate;
 
-            _context.Entry(_mapper.Map<ErrandEntity>(input)).State = EntityState.Added;
+            var errand = new ErrandEntity
+            {
+                ErrandNumber = input.ErrandNumber,
+                Title = input.Title,
+                IsResolved = false,
+                ErrandUpdates = new List<ErrandUpdateEntity>(),
+                Elevator = await _context.Elevators.FirstOrDefaultAsync(x => x.Id == input.ElevatorId) ?? null!
+            };
+
+            var errandUpdate = new ErrandUpdateEntity
+            {
+                Status = input.ErrandUpdates.Status,
+                Message = input.ErrandUpdates.Message,
+                DateOfUpdate = DateTime.UtcNow
+            };
+            errand.ErrandUpdates.Add(errandUpdate);
+
+            _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Added;
+            _context.Errands.Attach(errand).State = EntityState.Added;
             await _context.SaveChangesAsync();
 
             return IErrandService.StatusCodes.Success;
@@ -106,7 +124,7 @@ public class ErrandService : IErrandService
             if (errand == null)
                 return IErrandService.StatusCodes.ErrandDoesNotExist;
 
-            //Adds new message
+            //Adds new messagef
             var errandUpdate = new ErrandUpdateEntity
             {
                 Id = Guid.NewGuid(),
@@ -114,6 +132,8 @@ public class ErrandService : IErrandService
                 Message = input.Message,
                 DateOfUpdate = DateTime.UtcNow
             };
+
+            errand.IsResolved = input.IsResolved;
 
             errand.ErrandUpdates.Add(errandUpdate);
             //Adds employee

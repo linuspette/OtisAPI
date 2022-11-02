@@ -15,9 +15,9 @@ namespace OtisAPI.Controllers
             _elevatorService = elevatorService;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("getelevator")]
-        public async Task<IActionResult> GetElevatorAsync(Guid id)
+        public async Task<IActionResult> GetElevatorAsync([FromHeader] Guid id)
         {
             try
             {
@@ -32,9 +32,9 @@ namespace OtisAPI.Controllers
             return new BadRequestObjectResult("Error while searching for elevator");
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("getelevators")]
-        public async Task<IActionResult> GetElevatorsAsync(int take = 0)
+        public async Task<IActionResult> GetElevatorsAsync([FromHeader] int take = 0)
         {
             try
             {
@@ -49,9 +49,9 @@ namespace OtisAPI.Controllers
             return new BadRequestObjectResult("Error while gettings elevators");
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("getelevatorids")]
-        public async Task<IActionResult> GetElevatorIdsAsync(int take = 0)
+        public async Task<IActionResult> GetElevatorIdsAsync([FromHeader] int take = 0)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace OtisAPI.Controllers
 
         [HttpPost]
         [Route("add")]
-        public async Task<IActionResult> AddElevatorAsync(ElevatorInputModel input)
+        public async Task<IActionResult> AddElevatorAsync([FromBody] ElevatorInputModel input)
         {
             try
             {
