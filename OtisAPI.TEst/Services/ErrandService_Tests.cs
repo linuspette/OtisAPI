@@ -11,14 +11,13 @@ public class ErrandService_Tests
     private readonly ErrandService _sut;
     private readonly ErrandSeedDataFixture _dataContext;
     private readonly Random random = new Random();
-    private readonly AutoMapperDependency _autoMapper;
 
     public ErrandService_Tests()
     {
         _dataContext = new ErrandSeedDataFixture();
-        _autoMapper = new AutoMapperDependency();
+        var autoMapper = new AutoMapperDependency();
 
-        _sut = new ErrandService(_dataContext.SqlContext, _autoMapper.Mapper);
+        _sut = new ErrandService(_dataContext.SqlContext, autoMapper.Mapper);
     }
 
     [Fact]

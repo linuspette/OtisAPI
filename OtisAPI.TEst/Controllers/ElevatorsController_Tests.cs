@@ -23,6 +23,66 @@ public class ElevatorsController_Tests
         _sut = new ElevatorsController(new ElevatorService(_dataContext.SqlContext, _autoMapper.Mapper));
     }
 
+    //GET
+    [Fact]
+    public async Task Test_Get_Elevator_Should_Return_Specific_Elevator()
+    {
+        var elevatorsActionResult = await _sut.GetElevatorIdsAsync() as OkObjectResult;
+
+        if (elevatorsActionResult?.Value != null)
+        {
+            List<Guid> elevators = (List<Guid>)elevatorsActionResult.Value;
+            var elevatorActionResult = await _sut.GetElevatorAsync(elevators[0]) as OkObjectResult;
+            if (elevatorActionResult?.Value != null)
+            {
+                var elevator = (ElevatorViewModel)elevatorActionResult.Value;
+                Assert.StrictEqual(elevators[0], elevator.Id);
+            }
+        }
+    }
+    [Fact]
+    public async Task Test_Get_Elevator_Ids_Should_Return_All_ElevatorIds()
+    {
+        var elevatorIdsToCompare = _dataContext.SqlContext.Elevators.Select(x => x.Id).ToList();
+        List<Guid> elevatorIds = new List<Guid>();
+
+        elevatorIdsToCompare = elevatorIdsToCompare.OrderBy(x => x).ToList();
+
+        var elevatorIdsActionResults = await _sut.GetElevatorIdsAsync() as OkObjectResult;
+        if (elevatorIdsActionResults?.Value != null)
+        {
+            elevatorIds = (List<Guid>)elevatorIdsActionResults.Value;
+
+            elevatorIds = elevatorIds.OrderBy(x => x).ToList();
+        }
+
+        Assert.Equal(elevatorIdsToCompare, elevatorIds);
+    }
+    [Fact]
+    public async Task Test_Get_Elevators_Should_Return_All_Elevators()
+    {
+        var elevatorsActionResult = await _sut.GetElevatorsAsync() as OkObjectResult;
+        var elevatorsToCompare = _autoMapper.Mapper.Map<List<ElevatorViewModel>>(await _dataContext.SqlContext.Elevators.ToListAsync());
+        bool elevatorsExists = true;
+        if (elevatorsActionResult?.Value != null)
+        {
+            var elevators = (List<ElevatorViewModel>)elevatorsActionResult.Value;
+
+            foreach (var elevator in elevators)
+            {
+                if (elevatorsToCompare.Find(x => x.Id == elevator.Id) == null)
+                {
+                    elevatorsExists = false;
+                    break;
+                }
+            }
+        }
+        else
+            elevatorsExists = false;
+
+        Assert.True(elevatorsExists);
+    }
+
     //POST
     [Fact]
     public async Task Test_Add_Elevator_Should_Return_Success()
@@ -57,54 +117,5 @@ public class ElevatorsController_Tests
         var result = await _sut.AddElevatorAsync(null!);
 
         Assert.IsType<BadRequestObjectResult>(result);
-    }
-
-    //GET
-    [Fact]
-    public async Task Test_Get_Elevator_Should_Return_Elevator()
-    {
-        var elevatorsActionResult = await _sut.GetElevatorIdsAsync() as OkObjectResult;
-
-        if (elevatorsActionResult?.Value != null)
-        {
-            List<Guid> elevators = (List<Guid>)elevatorsActionResult.Value;
-            var elevatorActionResult = await _sut.GetElevatorAsync(elevators[0]) as OkObjectResult;
-            if (elevatorActionResult?.Value != null)
-            {
-                var elevator = (ElevatorViewModel)elevatorActionResult.Value;
-                Assert.StrictEqual(elevators[0], elevator.Id);
-            }
-        }
-    }
-    [Fact]
-    public async Task Test_Get_Elevator_Ids_Should_Return_ElevatorIds()
-    {
-        var elevatorIdsActionResults = await _sut.GetElevatorIdsAsync() as OkObjectResult;
-        if (elevatorIdsActionResults?.Value != null)
-        {
-            Assert.Equal(_dataContext.SqlContext.Elevators.Select(x => x.Id).ToList(), (List<Guid>)elevatorIdsActionResults.Value);
-        }
-    }
-
-    [Fact]
-    public async Task Test_Get_Elevators_Should_Return_Elevators()
-    {
-        var elevatorsActionResult = await _sut.GetElevatorsAsync() as OkObjectResult;
-        var elevatorsToCompare = _autoMapper.Mapper.Map<List<ElevatorViewModel>>(await _dataContext.SqlContext.Elevators.ToListAsync());
-        if (elevatorsActionResult?.Value != null)
-        {
-            var elevators = (List<ElevatorViewModel>)elevatorsActionResult.Value;
-            bool elevatorExists = true;
-
-            for (int i = 0; i < elevators.Count; i++)
-            {
-                if (elevatorsToCompare.Find(x => x.Id == elevators[i].Id) == null)
-                {
-                    elevatorExists = false;
-                    break;
-                }
-            }
-            Assert.True(elevatorExists);
-        }
     }
 }
