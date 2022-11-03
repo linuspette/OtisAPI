@@ -23,6 +23,7 @@ public interface IElevatorService
     public Task<IElevatorService.StatusCodes> AddElevatorAsync(ElevatorInputModel input);
     public Task<List<Guid>> GetElevatorIdsAsync(int take = 0);
     public Task<IElevatorService.StatusCodes> DeleteElevatorAsync(Guid elevatorId);
+    public Task<IElevatorService.StatusCodes> UpdateElevatorAsync(UpdateElevatorInputModel input);
 }
 public class ElevatorService : IElevatorService
 {

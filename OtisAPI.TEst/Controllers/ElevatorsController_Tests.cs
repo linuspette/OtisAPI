@@ -118,4 +118,42 @@ public class ElevatorsController_Tests
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
+
+    //UPDATE
+    [Fact]
+    public async Task Test_Update_Elevator_Should_Return_Success()
+    {
+        var elevatorToUpdate = _dataContext.SqlContext.Elevators.First();
+
+        var result = await _sut.UpdateElevatorAsync(new UpdateElevatorInputModel
+        {
+            Id = elevatorToUpdate.Id,
+            Location = "Test"
+        });
+
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Test_Update_Elevator_Should_Return_NotFound()
+    {
+        var result = await _sut.UpdateElevatorAsync(new UpdateElevatorInputModel
+        {
+            Id = Guid.Empty,
+            Location = "qwe"
+        });
+
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Test_Update_Elevator_Should_Return_BadRequest()
+    {
+        var result = await _sut.UpdateElevatorAsync(null!);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+
+    //DELETE
 }
