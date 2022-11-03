@@ -18,7 +18,6 @@ steps:
   inputs:
     version: '6.0.x'
     
-steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
