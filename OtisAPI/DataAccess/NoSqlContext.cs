@@ -4,7 +4,7 @@ namespace OtisAPI.DataAccess;
 
 public class NoSqlContext : DbContext
 {
-    public NoSqlContext(DbContextOptions options) : base(options)
+    public NoSqlContext(DbContextOptions<NoSqlContext> options) : base(options)
     {
     }
 }
