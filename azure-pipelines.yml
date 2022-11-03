@@ -25,11 +25,11 @@ steps:
     KeyVaultName: 'LinusDev'
     SecretsFilter: '*'
     RunAsPreJob: true
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    feedsToUse: 'select'
-    vstsFeed: 'my-vsts-feed' # A series of numbers and letters
+    projects: '**/**/*.csproj'
 
 - task: DotNetCoreCLI@2
   inputs:
