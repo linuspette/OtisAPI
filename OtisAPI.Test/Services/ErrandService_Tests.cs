@@ -82,6 +82,26 @@ public class ErrandService_Tests
         }
     }
 
+    [Fact]
+    public async Task Test_Delete_Update_From_Errand()
+    {
+        var errand = _dataContext.SqlContext.Errands.First();
+
+        var errandUpdate = new ErrandUpdateInputModel
+        {
+            ErrandNumber = errand.ErrandNumber,
+            Status = "Test",
+            Message = "Test",
+            IsResolved = false,
+            Employees = null,
+        };
+
+        await _sut.AddErrandUpdateAsync(errandUpdate);
+
+        var result = await _sut.DeleteErrandUpdateAsync(errand.ErrandNumber, errand.ErrandUpdates.First().Id);
+        Assert.StrictEqual(IErrandService.StatusCodes.Success, result);
+    }
+
     //Helpers
 
     private ErrandInputModel GenerateMockInputModel()

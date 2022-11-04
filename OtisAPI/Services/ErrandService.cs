@@ -31,7 +31,7 @@ public interface IErrandService
 
     //ErrandUpdates
     public Task<IErrandService.StatusCodes> AddErrandUpdateAsync(ErrandUpdateInputModel input);
-    public Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(Guid id);
+    public Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(string errandNumber, Guid id);
 }
 public class ErrandService : IErrandService
 {
@@ -192,16 +192,24 @@ public class ErrandService : IErrandService
         }
         return IErrandService.StatusCodes.Failed;
     }
-    public async Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(Guid id)
+    public async Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(string errandNumber, Guid id)
     {
         try
         {
-            var errandUpdate = await _context.ErrandUpdates.FirstOrDefaultAsync(x => x.Id == id);
+            var errand = await _context.Errands.Include(x => x.ErrandUpdates)
+                .FirstOrDefaultAsync(x => x.ErrandNumber == errandNumber);
+
+            if (errand == null)
+                return IErrandService.StatusCodes.NotFound;
+
+            var errandUpdate = errand.ErrandUpdates.FirstOrDefault(x => x.Id == id);
             if (errandUpdate == null)
                 return IErrandService.StatusCodes.NotFound;
 
+            errand.ErrandUpdates.Remove(errandUpdate);
 
             _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Deleted;
+            _context.Errands.Attach(errand).State = EntityState.Modified;
 
             var result = await _context.SaveChangesAsync();
 
