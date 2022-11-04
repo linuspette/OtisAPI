@@ -43,7 +43,7 @@ steps:
   displayName: 'Run tests'
   inputs:
     command: test
-    projects: '**/OtisAPI.TEst/*.csproj'
+    projects: '**/OtisAPI.Test/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
