@@ -20,6 +20,7 @@ public class ErrandService_Tests
         _sut = new ErrandService(_dataContext.SqlContext, autoMapper.Mapper);
     }
 
+    //Errands
     [Fact]
     public async Task Test_Create_Errand_Async()
     {
@@ -34,6 +35,18 @@ public class ErrandService_Tests
 
         Assert.Equal(errandNumber, result.ErrandNumber);
     }
+    [Fact]
+    public async Task Test_Delete_Errand()
+    {
+        var mock = GenerateMockInputModel();
+        await _sut.CreateErrandAsync(mock);
+
+
+        var result = await _sut.DeleteErrandAsync(mock.ErrandNumber);
+        Assert.StrictEqual(IErrandService.StatusCodes.Success, result);
+    }
+
+    //ErrandUpdates
     [Fact]
     public async Task Test_Add_Update_To_Errand()
     {

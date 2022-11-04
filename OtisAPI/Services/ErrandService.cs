@@ -19,12 +19,19 @@ public interface IErrandService
         NoElevatorAttached,
         NeedsFirstUpdate,
         ErrandDoesNotExist,
+        Error,
+        NotFound
     }
 
+    //Errands
     public Task<IErrandService.StatusCodes> CreateErrandAsync(ErrandInputModel input);
     public Task<ErrandViewModel> GetErrandAsync(string errandNummer);
     public Task<List<ErrandViewModel>> GetAllErrandsAsync(int take = 0);
+    public Task<IErrandService.StatusCodes> DeleteErrandAsync(string errandNumber);
+
+    //ErrandUpdates
     public Task<IErrandService.StatusCodes> AddErrandUpdateAsync(ErrandUpdateInputModel input);
+    public Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(Guid id);
 }
 public class ErrandService : IErrandService
 {
@@ -37,6 +44,7 @@ public class ErrandService : IErrandService
         _mapper = mapper;
     }
 
+    //Errands
     public async Task<IErrandService.StatusCodes> CreateErrandAsync(ErrandInputModel input)
     {
         bool validErrandNumber = false;
@@ -86,7 +94,6 @@ public class ErrandService : IErrandService
         catch { }
         return IErrandService.StatusCodes.Failed;
     }
-
     public async Task<ErrandViewModel> GetErrandAsync(string errandNummer)
     {
         return _mapper.Map<ErrandViewModel>(await _context.Errands
@@ -95,7 +102,6 @@ public class ErrandService : IErrandService
             .Include(x => x.Elevator)
             .FirstOrDefaultAsync(x => x.ErrandNumber == errandNummer)) ?? null!;
     }
-
     public async Task<List<ErrandViewModel>> GetAllErrandsAsync(int take = 0)
     {
         if (take <= 0)
@@ -112,7 +118,39 @@ public class ErrandService : IErrandService
             .Take(take)
             .ToListAsync()) ?? null!;
     }
+    public async Task<IErrandService.StatusCodes> DeleteErrandAsync(string errandNumber)
+    {
+        try
+        {
+            var errandToDelete = await _context.Errands
+                .Include(x => x.ErrandUpdates)
+                .FirstOrDefaultAsync(x => x.ErrandNumber == errandNumber);
 
+            if (errandToDelete == null)
+                return IErrandService.StatusCodes.NotFound;
+
+            _context.Errands.Attach(errandToDelete).State = EntityState.Deleted;
+            if (errandToDelete.ErrandUpdates.Count > 0)
+            {
+                foreach (var errandUpdate in errandToDelete.ErrandUpdates)
+                {
+                    _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Deleted;
+                }
+            }
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+                return IErrandService.StatusCodes.Success;
+
+            return IErrandService.StatusCodes.Failed;
+        }
+        catch { }
+
+        return IErrandService.StatusCodes.Error;
+    }
+
+    //Errand Updates
     public async Task<IErrandService.StatusCodes> AddErrandUpdateAsync(ErrandUpdateInputModel input)
     {
         try
@@ -153,5 +191,27 @@ public class ErrandService : IErrandService
             Console.WriteLine(ex.Message);
         }
         return IErrandService.StatusCodes.Failed;
+    }
+    public async Task<IErrandService.StatusCodes> DeleteErrandUpdateAsync(Guid id)
+    {
+        try
+        {
+            var errandUpdate = await _context.ErrandUpdates.FirstOrDefaultAsync(x => x.Id == id);
+            if (errandUpdate == null)
+                return IErrandService.StatusCodes.NotFound;
+
+
+            _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Deleted;
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+                return IErrandService.StatusCodes.Success;
+
+            return IErrandService.StatusCodes.Failed;
+        }
+        catch { }
+
+        return IErrandService.StatusCodes.Error;
     }
 }

@@ -86,7 +86,6 @@ public class ElevatorService : IElevatorService
         catch { }
         return IElevatorService.StatusCodes.Failed;
     }
-
     public async Task<IElevatorService.StatusCodes> UpdateElevatorAsync(UpdateElevatorInputModel input)
     {
         try
