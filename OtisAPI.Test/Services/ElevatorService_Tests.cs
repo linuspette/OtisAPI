@@ -7,7 +7,7 @@ using OtisAPI.Test.Dependencies;
 
 namespace OtisAPI.Test.Services;
 
-public class ElevatorService_Tests : IClassFixture<ElevatorSeedDataFixture>
+public class ElevatorService_Tests
 {
     private readonly ElevatorSeedDataFixture _dataContext;
     private readonly ElevatorService _sut;
@@ -62,4 +62,29 @@ public class ElevatorService_Tests : IClassFixture<ElevatorSeedDataFixture>
 
         Assert.StrictEqual(result.Count, _dataContext.SqlContext.Elevators.Count());
     }
+
+    [Fact]
+    public async Task Test_Delete_Elevator()
+    {
+        var elevatorToDelete = _dataContext.SqlContext.Elevators.First();
+
+        await _sut.DeleteElevatorAsync(elevatorToDelete.Id);
+
+        Assert.Null(_dataContext.SqlContext.Elevators.FirstOrDefault(x => x.Id == elevatorToDelete.Id));
+    }
+
+    [Fact]
+    public async Task Test_Update_Elevator()
+    {
+        var elevatorToUpdate = _dataContext.SqlContext.Elevators.First();
+
+        var result = await _sut.UpdateElevatorAsync(new UpdateElevatorInputModel
+        {
+            Id = elevatorToUpdate.Id,
+            Location = "Kungsgatan 8"
+        });
+
+        Assert.StrictEqual(IElevatorService.StatusCodes.Success, result);
+    }
+
 }

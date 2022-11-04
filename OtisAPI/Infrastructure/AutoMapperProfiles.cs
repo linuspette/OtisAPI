@@ -17,6 +17,7 @@ public class AutoMapperProfiles : Profile
         //Elevator entities
         CreateMap<ElevatorEntity, ElevatorViewModel>().ReverseMap();
         CreateMap<ElevatorInputModel, ElevatorEntity>();
+        CreateMap<UpdateElevatorInputModel, ElevatorEntity>();
 
         //Errand entities
         CreateMap<ErrandEntity, ErrandViewModel>().ReverseMap();

@@ -89,5 +89,54 @@ namespace OtisAPI.Controllers
                 return new BadRequestObjectResult(ex.Message);
             }
         }
+
+        [HttpPut]
+        [Route("update")]
+        public async Task<IActionResult> UpdateElevatorAsync(UpdateElevatorInputModel input)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var result = await _elevatorService.UpdateElevatorAsync(input);
+
+                    if (result == IElevatorService.StatusCodes.Success)
+                        return new OkObjectResult(result);
+                    else if (result == IElevatorService.StatusCodes.NotFound)
+                        return new NotFoundObjectResult(result);
+
+                    return new BadRequestObjectResult(result);
+                }
+
+                return new BadRequestObjectResult("Input invalid");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> DeleteElevatorAsync([FromBody] Guid elevatorId)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var result = await _elevatorService.DeleteElevatorAsync(elevatorId);
+                    if (result == IElevatorService.StatusCodes.Success)
+                        return new OkObjectResult("Elevator has been deleted");
+                    else if (result == IElevatorService.StatusCodes.NotFound)
+                        return new NotFoundObjectResult("Elevator not found");
+                }
+
+                return new BadRequestObjectResult("Elevator could not be deleted");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
     }
 }
