@@ -86,6 +86,47 @@ public class ElevatorService : IElevatorService
         catch { }
         return IElevatorService.StatusCodes.Failed;
     }
+    public async Task<IElevatorService.StatusCodes> UpdateElevatorAsync(UpdateElevatorInputModel input)
+    {
+        try
+        {
+            var elevator = await _context.Elevators.FirstOrDefaultAsync(x => x.Id == input.Id);
+            if (elevator == null)
+                return IElevatorService.StatusCodes.NotFound;
+
+            elevator.Location = input.Location;
+
+            _context.Elevators.Attach(elevator).State = EntityState.Modified;
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+                return IElevatorService.StatusCodes.Success;
+
+            return IElevatorService.StatusCodes.Failed;
+        }
+        catch { }
+        return IElevatorService.StatusCodes.Error;
+    }
+    public async Task<IElevatorService.StatusCodes> DeleteElevatorAsync(Guid elevatorId)
+    {
+        try
+        {
+            var elevator = await _context.Elevators
+                .FirstOrDefaultAsync(x => x.Id == elevatorId);
+            if (elevator == null)
+                return IElevatorService.StatusCodes.NotFound;
+            _context.Entry(elevator).State = EntityState.Deleted;
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+                return IElevatorService.StatusCodes.Success;
+
+            return IElevatorService.StatusCodes.Failed;
+        }
+        catch { }
+
+        return IElevatorService.StatusCodes.Error;
+    }
 
     public async Task<IElevatorService.StatusCodes> UpdateElevatorAsync(UpdateElevatorInputModel input)
     {
