@@ -30,7 +30,15 @@ builder.Services.AddScoped<IElevatorService, ElevatorService>();
 builder.Services.AddScoped<IErrandService, ErrandService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
+
 var app = builder.Build();
+
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin  
+    .AllowCredentials());               // allow credentials 
+
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
