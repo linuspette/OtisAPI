@@ -4,6 +4,7 @@ using OtisAPI.Model.DataEntities.Errands;
 using OtisAPI.Model.DataEntities.Users;
 using OtisAPI.Model.InputModels.Elevator;
 using OtisAPI.Model.InputModels.Errands;
+using OtisAPI.Model.InputModels.Users;
 using OtisAPI.Model.ViewModels.Elevator;
 using OtisAPI.Model.ViewModels.Errands;
 using OtisAPI.Model.ViewModels.Users;
@@ -28,5 +29,6 @@ public class AutoMapperProfiles : Profile
 
         //User entities
         CreateMap<EmployeeEntity, EmployeeViewModel>().ReverseMap();
+        CreateMap<EmployeeInputModel, EmployeeEntity>();
     }
 }
