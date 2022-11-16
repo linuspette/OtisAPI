@@ -15,6 +15,7 @@ namespace OtisAPI.Controllers
             _errandService = errandService;
         }
 
+        //Errands
         [HttpGet]
         [Route("geterrands")]
         public async Task<IActionResult> GetAllErrandsAsync([FromHeader] int take = 0)
@@ -48,7 +49,6 @@ namespace OtisAPI.Controllers
 
             return new BadRequestObjectResult("Could not process your request");
         }
-
         [HttpPost]
         [Route("createerrand")]
         public async Task<IActionResult> CreateErrandAsync([FromBody] ErrandInputModel input)
@@ -66,6 +66,30 @@ namespace OtisAPI.Controllers
 
             return new BadRequestObjectResult("Could not process your request");
         }
+        [HttpDelete]
+        [Route("deleteerrand")]
+        public async Task<IActionResult> DeleteErrandAsync([FromHeader] string errandNumber)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(errandNumber))
+                    return new BadRequestObjectResult("Errand number must be supplied");
+
+                var result = await _errandService.DeleteErrandAsync(errandNumber);
+
+                if (result == IErrandService.StatusCodes.Success)
+                    return new OkObjectResult(result);
+                else if (result == IErrandService.StatusCodes.NotFound)
+                    return new NotFoundObjectResult(result);
+
+                return new BadRequestObjectResult(result);
+            }
+            catch { }
+
+            return new BadRequestObjectResult("Error");
+        }
+
+        //ErrandUpdates
         [HttpPost]
         [Route("updateerrand")]
         public async Task<IActionResult> AddErrandUpdateAsync([FromBody] ErrandUpdateInputModel input)
@@ -81,6 +105,26 @@ namespace OtisAPI.Controllers
             }
             catch { }
             return new BadRequestObjectResult("Could not process your request");
+        }
+
+        [HttpDelete]
+        [Route("deleteerrandupdate")]
+        public async Task<IActionResult> DeleteErrandUpdateAsync([FromHeader] string errandNumber, Guid updateId)
+        {
+            try
+            {
+                var result = await _errandService.DeleteErrandUpdateAsync(errandNumber, updateId);
+
+                if (result == IErrandService.StatusCodes.Success)
+                    return new OkObjectResult(result);
+                else if (result == IErrandService.StatusCodes.NotFound)
+                    return new NotFoundObjectResult(result);
+
+                return new BadRequestObjectResult(result);
+            }
+            catch { }
+
+            return new BadRequestObjectResult("Error");
         }
     }
 }
