@@ -87,7 +87,7 @@ public class ErrandService_Tests
     {
         var errand = _dataContext.SqlContext.Errands.First();
 
-        var errandUpdate = new ErrandUpdateInputModel
+        var errandUpdateInput = new ErrandUpdateInputModel
         {
             ErrandNumber = errand.ErrandNumber,
             Status = "Test",
@@ -96,9 +96,11 @@ public class ErrandService_Tests
             Employees = null,
         };
 
-        await _sut.AddErrandUpdateAsync(errandUpdate);
+        await _sut.AddErrandUpdateAsync(errandUpdateInput);
 
-        var result = await _sut.DeleteErrandUpdateAsync(errand.ErrandNumber, errand.ErrandUpdates.First().Id);
+        var errandUpdate = errand.ErrandUpdates.First();
+
+        var result = await _sut.DeleteErrandUpdateAsync(errand.ErrandNumber, errandUpdate.Id);
         Assert.StrictEqual(IErrandService.StatusCodes.Success, result);
     }
 

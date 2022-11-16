@@ -208,7 +208,7 @@ public class ErrandService : IErrandService
 
             errand.ErrandUpdates.Remove(errandUpdate);
 
-            _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Deleted;
+            _context.ErrandUpdates.Remove(errandUpdate);
             _context.Errands.Attach(errand).State = EntityState.Modified;
 
             var result = await _context.SaveChangesAsync();
