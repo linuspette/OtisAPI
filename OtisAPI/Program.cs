@@ -29,7 +29,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IElevatorService, ElevatorService>();
 builder.Services.AddScoped<IErrandService, ErrandService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-
+builder.Services.AddScoped<ICosmosDbService, CosmosDbService>();
 
 var app = builder.Build();
 
