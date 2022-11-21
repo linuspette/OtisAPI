@@ -30,6 +30,7 @@
     <Folder Include="Model\InputModels\Users\" />
     <Folder Include="Model\ViewModels\Elevator\" />
     <Folder Include="Model\ViewModels\Errands\" />
+    <Folder Include="Model\ViewModels\CosmosDb\" />
     <Folder Include="Model\ViewModels\Users\" />
     <Folder Include="Services\" />
   </ItemGroup>
