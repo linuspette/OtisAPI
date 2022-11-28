@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OtisAPI.DataAccess;
 using OtisAPI.Infrastructure;
 using OtisAPI.Model.DataEntities.Errands;
-using OtisAPI.Model.DataEntities.Users;
 using OtisAPI.Model.InputModels.Errands;
 using OtisAPI.Model.ViewModels.Errands;
 
@@ -175,9 +174,14 @@ public class ErrandService : IErrandService
 
             errand.ErrandUpdates.Add(errandUpdate);
             //Adds employee
-            if (input.Employees != null)
+            if (input.EmployeeIds != null && input.EmployeeIds.Count > 0)
             {
-                errand.AssignedTechnicians = _mapper.Map<List<EmployeeEntity>>(input.Employees);
+                foreach (var id in input.EmployeeIds)
+                {
+                    var employee = await _context.Employees.FirstOrDefaultAsync(x => x.EmployeeNumber == id);
+                    if (employee != null)
+                        errand.AssignedTechnicians.Add(employee);
+                }
             }
 
             _context.ErrandUpdates.Attach(errandUpdate).State = EntityState.Added;
