@@ -58,7 +58,7 @@ namespace OtisAPI.Controllers
                 var result = await _errandService.CreateErrandAsync(input);
 
                 if (result == IErrandService.StatusCodes.Success)
-                    return new OkObjectResult(result);
+                    return new OkObjectResult(await _errandService.GetErrandAsync(input.ErrandNumber));
 
                 return new BadRequestObjectResult(result);
             }
