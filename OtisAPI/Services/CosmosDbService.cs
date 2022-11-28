@@ -74,7 +74,6 @@ public class CosmosDbService : ICosmosDbService
             }
         }
 
-
         return returnData ?? null!;
     }
 }
