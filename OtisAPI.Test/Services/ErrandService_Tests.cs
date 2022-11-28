@@ -73,7 +73,7 @@ public class ErrandService_Tests
                 Status = "Fixed",
                 Message = "Ok",
                 IsResolved = true,
-                Employees = null
+                EmployeeIds = null
             };
 
             var updateResult = await _sut.AddErrandUpdateAsync(errandUpdate);
